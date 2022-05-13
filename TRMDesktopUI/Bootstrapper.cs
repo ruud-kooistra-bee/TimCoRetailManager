@@ -28,7 +28,8 @@ namespace TRMDesktopUI
 
             _container
                 .Singleton<IWindowManager, WindowManager>()
-                .Singleton<IEventAggregator, EventAggregator>();
+                .Singleton<IEventAggregator, EventAggregator>()
+                .Singleton<IAPIHelper, APIHelper>();
 
             // This enables creating a new instance for every viewmodel for each request during the construction of the shellviewmodel
             GetType().Assembly.GetTypes()
