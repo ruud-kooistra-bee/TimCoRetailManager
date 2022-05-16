@@ -1,10 +1,7 @@
 ﻿using Caliburn.Micro;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using TRMDesktopUI.Helpers;
+using TRMDesktopUI.Library.Api;
 
 namespace TRMDesktopUI.ViewModels
 {
@@ -12,6 +9,8 @@ namespace TRMDesktopUI.ViewModels
     {
         private string _username;
         private string _password;
+        private string _errorMessage;
+        
         private IAPIHelper _apiHelper;
 
         public LoginViewModel(IAPIHelper apiHelper)
@@ -47,6 +46,35 @@ namespace TRMDesktopUI.ViewModels
             }
         }
 
+        public bool IsErrorVisible 
+        {
+            get
+            {
+                bool output = false;
+
+                if (ErrorMessage?.Length > 0)
+                {
+                    output = true;
+                }
+
+                return output;
+            }
+        }
+
+        public string ErrorMessage
+        {
+            get
+            {
+                return _errorMessage;
+            }
+            set
+            {
+                _errorMessage = value;
+                NotifyOfPropertyChange(() => IsErrorVisible);
+                NotifyOfPropertyChange(() => ErrorMessage);
+            }
+        }
+
         public bool CanLogin
         {
             get
@@ -66,11 +94,15 @@ namespace TRMDesktopUI.ViewModels
         {
             try
             {
+                ErrorMessage = String.Empty;
                 var result = await _apiHelper.Authenticate(Username, Password);
+
+                // Capture more information about the user.
+                await _apiHelper.GetLogginInUserInfo(result.Access_Token);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                ErrorMessage = ex.Message;
             }
         }
     }
