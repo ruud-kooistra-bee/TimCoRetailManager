@@ -1,22 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Caliburn.Micro;
+using System.Threading;
 using System.Threading.Tasks;
-using Caliburn.Micro;
+using TRMDesktopUI.EventModels;
 
 namespace TRMDesktopUI.ViewModels
 {
-    public class ShellViewModel : Conductor<object>
+    public class ShellViewModel : Conductor<object>, IHandle<LogOnEvent>
     {
-        private LoginViewModel _loginVM;
+        private IEventAggregator _events;
+
+        private SalesViewModel _salesVM;
+
+        private SimpleContainer _container;
 
         // Constructor injection see Bootstrapper.cs
-        public ShellViewModel(LoginViewModel loginVM)
+        public ShellViewModel(
+            IEventAggregator events, 
+            SalesViewModel salesVM,
+            SimpleContainer container
+            )
         {
-            _loginVM = loginVM;
+            _events = events;
+            _events.SubscribeOnUIThread(this);
 
-            ActivateItemAsync(_loginVM);
+            _salesVM = salesVM;
+
+            _container = container;
+
+            ActivateItemAsync(_container.GetInstance<LoginViewModel>());
+        }
+
+        public Task HandleAsync(LogOnEvent message, CancellationToken cancellationToken)
+        {
+            return ActivateItemAsync(_salesVM);
         }
     }
 }

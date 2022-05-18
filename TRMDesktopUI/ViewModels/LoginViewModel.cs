@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using System;
 using System.Threading.Tasks;
+using TRMDesktopUI.EventModels;
 using TRMDesktopUI.Library.Api;
 
 namespace TRMDesktopUI.ViewModels
@@ -12,10 +13,12 @@ namespace TRMDesktopUI.ViewModels
         private string _errorMessage;
         
         private IAPIHelper _apiHelper;
+        private IEventAggregator _events;
 
-        public LoginViewModel(IAPIHelper apiHelper)
+        public LoginViewModel(IAPIHelper apiHelper, IEventAggregator events)
         {
             _apiHelper = apiHelper;
+            _events = events;
         }
 
         public string Username 
@@ -99,6 +102,8 @@ namespace TRMDesktopUI.ViewModels
 
                 // Capture more information about the user.
                 await _apiHelper.GetLogginInUserInfo(result.Access_Token);
+
+                await _events.PublishOnUIThreadAsync(new LogOnEvent());
             }
             catch (Exception ex)
             {
